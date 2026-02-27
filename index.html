@@ -9,10 +9,13 @@
     <h1>抽鬼牌：生存戰</h1>
     
     <div id="status-bar">
-        <div class="hp-box">玩家生命: <span id="player-hp">❤️❤️</span></div>
+    <div class="hp-box">玩家: <span id="player-hp">❤️❤️</span></div>
+    <div class="actions">
         <button id="reset-btn" onclick="initGame()">重新開始</button>
-        <div class="hp-box">電腦生命: <span id="cpu-hp">❤️❤️</span></div>
+        <button id="discard-btn" onclick="playerDiscardAll()">打出全部對子</button>
     </div>
+    <div class="hp-box">電腦: <span id="cpu-hp">❤️❤️</span></div>
+</div>
 
     <div id="game-container">
         <div class="section">

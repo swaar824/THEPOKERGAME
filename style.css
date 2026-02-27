@@ -27,3 +27,22 @@ body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; backgr
     100% { transform: translateX(0); }
 }
 .damage { animation: shake 0.3s; color: red; }
+
+/* 新增：牌組移動動畫 */
+@keyframes flyToPlayer {
+    from { transform: translateY(-200px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes flyToCPU {
+    from { transform: translateY(200px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    to { transform: scale(0.5); opacity: 0; }
+}
+
+.card.drawing { animation: flyToPlayer 0.5s forwards; }
+.card.discarding { animation: fadeOut 0.6s forwards; }
+.card.revealing { background: #f1c40f !important; color: black !important; } /* 電腦出牌時展示 */
