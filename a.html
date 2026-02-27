@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>抽鬼牌：生存戰</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>抽鬼牌：生存戰</h1>
+    
+    <div id="status-bar">
+        <div class="hp-box">玩家生命: <span id="player-hp">❤️❤️</span></div>
+        <button id="reset-btn" onclick="initGame()">重新開始</button>
+        <div class="hp-box">電腦生命: <span id="cpu-hp">❤️❤️</span></div>
+    </div>
+
+    <div id="game-container">
+        <div class="section">
+            <h3>電腦的手牌 (<span id="cpu-count">0</span>)</h3>
+            <div id="cpu-cards" class="card-area hidden-cards"></div>
+        </div>
+
+        <div id="msg-board">請從電腦那裡抽一張牌...</div>
+
+        <div class="section">
+            <h3>你的手牌 (<span id="player-count">0</span>)</h3>
+            <div id="player-cards" class="card-area"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

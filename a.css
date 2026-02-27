@@ -1,0 +1,29 @@
+body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; background: #1a1a2e; color: white; margin: 0; padding: 20px; }
+#status-bar { display: flex; justify-content: space-around; align-items: center; background: #16213e; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+.hp-box { font-size: 1.5rem; color: #e94560; font-weight: bold; }
+
+.card-area { display: flex; justify-content: center; flex-wrap: wrap; min-height: 140px; padding: 10px; transition: all 0.3s; }
+.card {
+    width: 70px; height: 100px; background: white; color: black;
+    border-radius: 10px; margin: 8px; line-height: 100px;
+    font-size: 28px; font-weight: bold; cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3); transform: transition 0.2s;
+}
+.card:hover { transform: translateY(-10px); background: #f0f0f0; }
+.hidden-cards .card { background: linear-gradient(45deg, #0f3460, #16213e); color: transparent; border: 2px solid #533483; }
+
+#reset-btn {
+    padding: 10px 20px; font-size: 1rem; cursor: pointer;
+    background: #e94560; color: white; border: none; border-radius: 5px;
+}
+#reset-btn:hover { background: #ff2e63; }
+#msg-board { margin: 20px; font-size: 1.4rem; color: #f1c40f; min-height: 35px; }
+
+/* 簡單的動畫 */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(5px); }
+    50% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+.damage { animation: shake 0.3s; color: red; }
