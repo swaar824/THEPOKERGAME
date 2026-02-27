@@ -1,3 +1,6 @@
+window.onload = function() {
+    initGame();
+};
 let playerHand = [];
 let cpuHand = [];
 let playerHP = 2;
