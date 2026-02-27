@@ -142,3 +142,54 @@ async function cpuTurn() {
     let pairCard = Object.keys(counts).find(c => c !== joker && counts[c] >= 2);
 
     if (pairCard) {
+        document.getElementById('msg-board').innerText = `電腦展示並打出一對：${pairCard}`;
+        for(let i=0; i<2; i++) {
+            let idx = cpuHand.indexOf(pairCard);
+            cpuHand.splice(idx, 1);
+        }
+        await sleep(1200);
+        render();
+    }
+
+    // B. 電腦抽玩家的牌
+    document.getElementById('msg-board').innerText = `電腦正在挑選你的牌...`;
+    await sleep(1000);
+    
+    const randomIndex = Math.floor(Math.random() * playerHand.length);
+    const card = playerHand.splice(randomIndex, 1)[0];
+    cpuHand.push(card);
+
+    if (card === joker) {
+        cpuHP--;
+        document.getElementById('msg-board').innerText = `嘿嘿！電腦抽到了鬼牌 🃏！`;
+    } else {
+        document.getElementById('msg-board').innerText = `電腦抽走了一張牌。`;
+    }
+
+    render();
+    await sleep(1000);
+    isAnimating = false;
+    checkGameStatus();
+}
+
+// 工具：延遲函式
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+// 檢查勝負
+function checkGameStatus() {
+    if (playerHP <= 0) return endGame("💀 玩家生命歸零，電腦獲勝！");
+    if (cpuHP <= 0) return endGame("🎉 電腦生命歸零，玩家獲勝！");
+    if (playerHand.length === 0) return endGame("🏆 你清空了手牌，恭喜獲勝！");
+    if (cpuHand.length === 0) return endGame("❌ 電腦清空了手牌，你輸了。");
+    return false;
+}
+
+function endGame(msg) {
+    isGameOver = true;
+    document.getElementById('msg-board').innerText = msg;
+    alert(msg);
+    return true;
+}
+
+// 啟動
+initGame();
