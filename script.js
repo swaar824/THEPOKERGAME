@@ -7,10 +7,11 @@ let playerHP = 2;
 let cpuHP = 2;
 let isGameOver = false;
 let isAnimating = false;
-let needsToDiscard = false; // 新增狀態：標記玩家是否正處於「抽完牌待消牌」的階段
+let needsToDiscard = false; // 玩家抽完牌後必須消對子的狀態
 
 const joker = '🃏';
 
+// 1. 初始化遊戲
 function initGame() {
     playerHP = 2;
     cpuHP = 2;
@@ -25,10 +26,11 @@ function initGame() {
     playerHand = fullDeck.slice(0, 13);
     cpuHand = fullDeck.slice(13);
 
-    document.getElementById('msg-board').innerText = "遊戲開始！請先打出對子，或直接開始抽牌。";
+    document.getElementById('msg-board').innerText = "遊戲開始！請先打出對子，或開始抽牌。";
     render();
 }
 
+// 2. 核心繪製
 function render() {
     document.getElementById('player-hp').innerText = "❤️".repeat(playerHP) || "💀";
     document.getElementById('cpu-hp').innerText = "❤️".repeat(cpuHP) || "💀";
@@ -38,9 +40,11 @@ function render() {
     cpuHand.forEach((_, index) => {
         const cardDiv = document.createElement('div');
         cardDiv.className = 'card';
-        // 如果玩家還沒消對子，不能抽下一張
+        // 嚴格檢查：非動畫中、遊戲未結束、且非等待消牌狀態才可點擊
         if (!isAnimating && !isGameOver && !needsToDiscard) {
             cardDiv.onclick = () => playerDraw(index);
+        } else {
+            cardDiv.style.cursor = 'default';
         }
         cpuArea.appendChild(cardDiv);
     });
@@ -59,7 +63,7 @@ function render() {
     document.getElementById('player-count').innerText = playerHand.length;
 }
 
-// 玩家抽牌
+// 3. 玩家抽牌
 async function playerDraw(index) {
     if (isAnimating || isGameOver || needsToDiscard) return;
     isAnimating = true;
@@ -72,45 +76,43 @@ async function playerDraw(index) {
         
         if (card === joker) {
             playerHP--;
-            document.getElementById('msg-board').innerText = `😱 抽到鬼牌！扣 1 點生命！`;
+            document.getElementById('msg-board').innerText = `😱 抽到鬼牌！扣 1 點生命！請點擊打出對子。`;
         } else {
-            document.getElementById('msg-board').innerText = `你抽到了：${card}。請打出對子以結束回合。`;
+            document.getElementById('msg-board').innerText = `你抽到了：${card}。請點擊「打出全部對子」以結束回合。`;
         }
         
-        render();
-        await sleep(500);
-        
-        // 抽完牌後，進入「必須消牌」狀態
-        needsToDiscard = true; 
-        
+        needsToDiscard = true; // 鎖定抽牌，強制要求點擊消牌按鈕
+    } catch (e) {
+        console.error(e);
     } finally {
         isAnimating = false;
+        render();
         checkGameStatus();
     }
 }
 
-// 玩家打出對子並結束回合
+// 4. 玩家消牌按鈕邏輯
 async function playerDiscardAll() {
     if (isAnimating || isGameOver) return;
     
-    // 檢查手上有無對子
     let counts = {};
     playerHand.forEach(c => counts[c] = (counts[c] || 0) + 1);
     let pairs = Object.keys(counts).filter(val => val !== joker && counts[val] >= 2);
 
-    // 如果玩家正處於抽完牌階段，但手上有對子卻不打出
-    if (needsToDiscard && pairs.length > 0) {
-        executeDiscard(pairs);
-    } else if (needsToDiscard && pairs.length === 0) {
-        // 手上沒對子了，直接進入電腦回合
-        needsToDiscard = false;
-        await cpuTurn();
-    } else if (!needsToDiscard && pairs.length > 0) {
-        // 平時（非抽牌後）也可以主動點擊消牌
-        executeDiscard(pairs);
+    if (pairs.length > 0) {
+        // 執行消牌動畫流程
+        await executeDiscard(pairs);
     } else {
-        document.getElementById('msg-board').innerText = "手邊沒有對子可以打出。";
+        // 如果沒對子了
+        if (needsToDiscard) {
+            document.getElementById('msg-board').innerText = "手邊沒有對子，輪到電腦。";
+            needsToDiscard = false; // 解除狀態
+            await cpuTurn();
+        } else {
+            document.getElementById('msg-board').innerText = "手上目前沒有對子。";
+        }
     }
+    render();
 }
 
 async function executeDiscard(pairs) {
@@ -125,61 +127,69 @@ async function executeDiscard(pairs) {
     });
 
     await sleep(800);
-    render();
     
-    // 如果是因為抽完牌而消牌，消完後進入電腦回合
+    // 如果是抽完牌後的消牌，消完即進入電腦回合
     if (needsToDiscard) {
         needsToDiscard = false;
+        render();
         if (!checkGameStatus()) {
             await cpuTurn();
         }
+    } else {
+        render();
+        checkGameStatus();
     }
     isAnimating = false;
 }
 
+// 5. 電腦回合
 async function cpuTurn() {
     if (isGameOver) return;
     isAnimating = true;
 
-    // 電腦檢查對子
-    let counts = {};
-    cpuHand.forEach(c => counts[c] = (counts[c] || 0) + 1);
-    let pairCard = Object.keys(counts).find(c => c !== joker && counts[c] >= 2);
+    try {
+        // 電腦檢查對子並打出
+        let counts = {};
+        cpuHand.forEach(c => counts[c] = (counts[c] || 0) + 1);
+        let pairCard = Object.keys(counts).find(c => c !== joker && counts[c] >= 2);
 
-    if (pairCard) {
-        document.getElementById('msg-board').innerText = `電腦展示並打出一對：${pairCard}`;
-        for(let i=0; i<2; i++) {
-            let idx = cpuHand.indexOf(pairCard);
-            cpuHand.splice(idx, 1);
+        if (pairCard) {
+            document.getElementById('msg-board').innerText = `電腦展示並打出一對：${pairCard}`;
+            for(let i=0; i<2; i++) {
+                let idx = cpuHand.indexOf(pairCard);
+                cpuHand.splice(idx, 1);
+            }
+            await sleep(1000);
+            render();
         }
-        await sleep(1200);
+
+        if (checkGameStatus()) return;
+
+        // 電腦抽牌
+        document.getElementById('msg-board').innerText = `電腦正在挑選你的牌...`;
+        await sleep(1000);
+        
+        if (playerHand.length > 0) {
+            const randomIndex = Math.floor(Math.random() * playerHand.length);
+            const card = playerHand.splice(randomIndex, 1)[0];
+            cpuHand.push(card);
+
+            if (card === joker) {
+                cpuHP--;
+                document.getElementById('msg-board').innerText = `嘿嘿！電腦抽到了鬼牌 🃏！`;
+            } else {
+                document.getElementById('msg-board').innerText = `電腦抽走了一張牌。`;
+            }
+        }
+
+        await sleep(1000);
+    } finally {
+        isAnimating = false;
+        needsToDiscard = false; // 確保徹底解除鎖定
+        if (!checkGameStatus()) {
+            document.getElementById('msg-board').innerText = "輪到你了，請抽牌。";
+        }
         render();
-    }
-
-    if (checkGameStatus()) return;
-
-    // 電腦抽牌
-    document.getElementById('msg-board').innerText = `電腦正在挑選你的牌...`;
-    await sleep(1000);
-    
-    if (playerHand.length > 0) {
-        const randomIndex = Math.floor(Math.random() * playerHand.length);
-        const card = playerHand.splice(randomIndex, 1)[0];
-        cpuHand.push(card);
-
-        if (card === joker) {
-            cpuHP--;
-            document.getElementById('msg-board').innerText = `嘿嘿！電腦抽到了鬼牌 🃏！`;
-        } else {
-            document.getElementById('msg-board').innerText = `電腦抽走了一張牌。`;
-        }
-    }
-
-    render();
-    await sleep(1000);
-    isAnimating = false;
-    if (!checkGameStatus()) {
-        document.getElementById('msg-board').innerText = "輪到你了，請抽牌。";
     }
 }
 
@@ -195,8 +205,8 @@ function checkGameStatus() {
 
 function endGame(msg) {
     isGameOver = true;
-    document.getElementById('msg-board').innerText = msg;
-    alert(msg);
+    render();
+    setTimeout(() => alert(msg), 100);
     return true;
 }
 
