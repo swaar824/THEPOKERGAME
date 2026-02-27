@@ -46,3 +46,45 @@ body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; backgr
 .card.drawing { animation: flyToPlayer 0.5s forwards; }
 .card.discarding { animation: fadeOut 0.6s forwards; }
 .card.revealing { background: #f1c40f !important; color: black !important; } /* 電腦出牌時展示 */
+
+/* 統一按鈕風格 */
+.game-btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    background: #e94560;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 4px #900d2d;
+    transition: all 0.2s;
+    font-weight: bold;
+}
+
+.game-btn:active {
+    box-shadow: 0 0 #900d2d;
+    transform: translateY(4px);
+}
+
+/* 定位玩家按鈕於右下方 */
+#player-cards-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#discard-btn {
+    align-self: flex-end; /* 靠右 */
+    margin-right: 20px;
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+/* 其餘原本的 CSS 保持不變 */
+body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; background: #1a1a2e; color: white; margin: 0; padding: 20px; }
+#status-bar { display: flex; justify-content: space-around; align-items: center; background: #16213e; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+.card-area { display: flex; justify-content: center; flex-wrap: wrap; min-height: 140px; padding: 10px; }
+.card { width: 70px; height: 100px; background: white; color: black; border-radius: 10px; margin: 8px; line-height: 100px; font-size: 28px; font-weight: bold; cursor: pointer; }
+.hidden-cards .card { background: linear-gradient(45deg, #0f3460, #16213e); color: transparent; border: 2px solid #533483; }
+#msg-board { margin: 20px; font-size: 1.4rem; color: #f1c40f; min-height: 35px; }

@@ -9,13 +9,10 @@
     <h1>抽鬼牌：生存戰</h1>
     
     <div id="status-bar">
-    <div class="hp-box">玩家: <span id="player-hp">❤️❤️</span></div>
-    <div class="actions">
-        <button id="reset-btn" onclick="initGame()">重新開始</button>
-        <button id="discard-btn" onclick="playerDiscardAll()">打出全部對子</button>
+        <div class="hp-box">玩家: <span id="player-hp">❤️❤️</span></div>
+        <button class="game-btn" onclick="initGame()">重新開始</button>
+        <div class="hp-box">電腦: <span id="cpu-hp">❤️❤️</span></div>
     </div>
-    <div class="hp-box">電腦: <span id="cpu-hp">❤️❤️</span></div>
-</div>
 
     <div id="game-container">
         <div class="section">
@@ -25,9 +22,12 @@
 
         <div id="msg-board">請從電腦那裡抽一張牌...</div>
 
-        <div class="section">
+        <div class="section" id="player-section">
             <h3>你的手牌 (<span id="player-count">0</span>)</h3>
-            <div id="player-cards" class="card-area"></div>
+            <div id="player-cards-wrapper">
+                <div id="player-cards" class="card-area"></div>
+                <button id="discard-btn" class="game-btn" onclick="playerDiscardAll()">打出全部對子</button>
+            </div>
         </div>
     </div>
     <script src="script.js"></script>
