@@ -2,34 +2,53 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>抽鬼牌：生存戰</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽鬼牌：極限生存戰</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>抽鬼牌：生存戰</h1>
-    
+
     <div id="status-bar">
-        <div class="hp-box">玩家: <span id="player-hp">❤️❤️</span></div>
-        <button class="game-btn" onclick="initGame()">重新開始</button>
-        <div class="hp-box">電腦: <span id="cpu-hp">❤️❤️</span></div>
+        <div class="hp-box">
+            玩家生命: <span id="player-hp">❤️❤️</span>
+        </div>
+        
+        <button class="game-btn" onclick="initGame()">重新開始遊戲</button>
+        
+        <div class="hp-box">
+            電腦生命: <span id="cpu-hp">❤️❤️</span>
+        </div>
     </div>
 
     <div id="game-container">
+        
         <div class="section">
             <h3>電腦的手牌 (<span id="cpu-count">0</span>)</h3>
-            <div id="cpu-cards" class="card-area hidden-cards"></div>
+            <div id="cpu-cards" class="card-area">
+                </div>
         </div>
 
-        <div id="msg-board">請從電腦那裡抽一張牌...</div>
+        <div id="discard-pile-container">
+            <div id="discard-pile" class="card back">
+                </div>
+            <div id="msg-board">載入中...</div>
+        </div>
 
         <div class="section" id="player-section">
             <h3>你的手牌 (<span id="player-count">0</span>)</h3>
+            
             <div id="player-cards-wrapper">
-                <div id="player-cards" class="card-area"></div>
-                <button id="discard-btn" class="game-btn" onclick="playerDiscardAll()">打出全部對子</button>
+                <div id="player-cards" class="card-area">
+                    </div>
+                
+                <button id="discard-btn" class="game-btn" onclick="playerDiscardAll()">
+                    打出全部對子
+                </button>
             </div>
         </div>
+
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
