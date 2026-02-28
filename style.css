@@ -145,11 +145,10 @@ body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; backgr
 .card.dissolve { animation: pair-dissolve 0.6s forwards; z-index: 101; }
 
 /* 棄牌堆容器 */
-#discard-pile-container {
-    perspective: 1000px;
-    height: 150px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
+#discard-pile {
+    width: 70px;
+    height: 100px;
+    border: 2px solid #533483;
+    background: #16213e;
+    border-radius: 10px;
 }
