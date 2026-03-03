@@ -3,52 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>抽鬼牌：極限生存戰</title>
+    <title>抽鬼牌小遊戲</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="game-board">
+        <button id="restart-btn" class="ui-btn" onclick="initGame()"></button>
 
-    <div id="status-bar">
-        <div class="hp-box">
-            玩家生命: <span id="player-hp">❤️❤️</span>
+        <div id="cpu-hp" class="hp-display"></div>
+
+        <div id="cpu-hand-area" class="hand-container"></div>
+
+        <div id="discard-pile" class="card"></div>
+
+        <button id="discard-btn" class="ui-btn" onclick="playerDiscardAll()"></button>
+
+        <div id="player-hand-area" class="hand-container"></div>
+
+        <div id="player-hp" class="hp-display"></div>
+
+        <div id="coin-overlay" class="hidden">
+            <div id="coin">
+                <div class="side heads"></div> <div class="side tails"></div> </div>
+            <div id="coin-result-text"></div>
         </div>
         
-        <button class="game-btn" onclick="initGame()">重新開始遊戲</button>
-        
-        <div class="hp-box">
-            電腦生命: <span id="cpu-hp">❤️❤️</span>
-        </div>
+        <div id="msg-board"></div>
     </div>
-
-    <div id="game-container">
-        
-        <div class="section">
-            <h3>電腦的手牌 (<span id="cpu-count">0</span>)</h3>
-            <div id="cpu-cards" class="card-area">
-                </div>
-        </div>
-
-        <div id="discard-pile-container">
-            <div id="discard-pile" class="card back">
-                </div>
-            <div id="msg-board">載入中...</div>
-        </div>
-
-        <div class="section" id="player-section">
-            <h3>你的手牌 (<span id="player-count">0</span>)</h3>
-            
-            <div id="player-cards-wrapper">
-                <div id="player-cards" class="card-area">
-                    </div>
-                
-                <button id="discard-btn" class="game-btn" onclick="playerDiscardAll()">
-                    打出全部對子
-                </button>
-            </div>
-        </div>
-
-    </div>
-
     <script src="script.js"></script>
 </body>
 </html>

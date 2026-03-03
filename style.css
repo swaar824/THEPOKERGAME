@@ -152,3 +152,49 @@ body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; backgr
     background: #16213e;
     border-radius: 10px;
 }
+
+/* 4. 牌桌背景 */
+#game-board {
+    width: 100vw; height: 100vh;
+    background: url('tabletop.jpg') no-repeat center center;
+    background-size: cover;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 6-9. UI 定位 */
+#restart-btn { position: absolute; top: 5%; left: 5%; width: 100px; height: 50px; background: url('restart_icon.png'); }
+#cpu-hp { position: absolute; top: 5%; right: 5%; }
+#player-hp { position: absolute; bottom: 5%; left: 5%; }
+#discard-btn { position: absolute; top: 50%; right: 10%; transform: translateY(-50%); width: 120px; height: 40px; }
+#discard-pile { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+/* 9. 手牌重疊與排列 (參考附圖二) */
+.hand-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.card {
+    width: 80px; height: 120px;
+    margin-right: -40px; /* 關鍵：造成重疊效果 */
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background-size: cover;
+}
+
+/* 9. 我方手牌設定：左方重疊至右方上方 */
+#player-hand-area .card { z-index: var(--index); } /* JavaScript 會動態遞減 z-index */
+
+/* 10. 檢視動畫：牌上升並移開旁邊的牌 */
+.card:hover {
+    transform: translateY(-30px) scale(1.1);
+    margin-right: 10px; /* 移開旁邊的牌 */
+    z-index: 999 !important;
+}
+
+/* 1. 拋硬幣動畫 */
+@keyframes flip-heads { from { transform: rotateY(0); } to { transform: rotateY(1800deg); } }
+@keyframes flip-tails { from { transform: rotateY(0); } to { transform: rotateY(1980deg); } }
+#coin { width: 100px; height: 100px; transition: transform 2s cubic-bezier(0.3, 1, 0.3, 1); transform-style: preserve-3d; }
