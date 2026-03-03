@@ -17,7 +17,18 @@ body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; backgr
     background: #e94560; color: white; border: none; border-radius: 5px;
 }
 #reset-btn:hover { background: #ff2e63; }
-#msg-board { margin: 20px; font-size: 1.4rem; color: #f1c40f; min-height: 35px; }
+#msg-board {
+    position: absolute;
+    bottom: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    font-size: 1.5rem;
+    color: rgb(255, 218, 133);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    pointer-events: none;
+    z-index: 100;
+}
 
 /* 簡單的動畫 */
 @keyframes shake {
@@ -87,11 +98,21 @@ body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; backgr
 .card-area { display: flex; justify-content: center; flex-wrap: wrap; min-height: 140px; padding: 10px; }
 .card { width: 70px; height: 100px; background: white; color: black; border-radius: 10px; margin: 8px; line-height: 100px; font-size: 28px; font-weight: bold; cursor: pointer; }
 .hidden-cards .card { background: linear-gradient(45deg, #0f3460, #16213e); color: transparent; border: 2px solid #533483; }
-#msg-board { margin: 20px; font-size: 1.4rem; color: #f1c40f; min-height: 35px; }
 
 /* 棄牌堆樣式 */
-#discard-pile-container { margin: 20px 0; display: flex; flex-direction: column; align-items: center; }
-#discard-pile { width: 70px; height: 100px; background: #34495e; border: 2px dashed #ecf0f1; border-radius: 10px; position: relative; }
+#discard-pile {
+    position: absolute;
+    top: 35%; /* 偏上位置 */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85px;
+    height: 125px;
+    border: 2px dashed rgba(255,255,255,0.3); /* 空堆時的虛線框 */
+    border-radius: 8px;
+    background-size: cover;
+    background-position: center;
+    transition: background-image 0.3s;
+}
 
 /* 鬼牌震動動畫 */
 @keyframes joker-shake {
@@ -144,15 +165,6 @@ body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; backgr
 .card.spotlight { animation: spotlight 0.5s forwards; z-index: 100; }
 .card.dissolve { animation: pair-dissolve 0.6s forwards; z-index: 101; }
 
-/* 棄牌堆容器 */
-#discard-pile {
-    width: 70px;
-    height: 100px;
-    border: 2px solid #533483;
-    background: #16213e;
-    border-radius: 10px;
-}
-
 /* 4. 牌桌背景 */
 #game-board {
     width: 100vw; height: 100vh;
@@ -163,10 +175,35 @@ body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; backgr
 }
 
 /* 6-9. UI 定位 */
-#restart-btn { position: absolute; top: 5%; left: 5%; width: 100px; height: 50px; background: url('restart_icon.png'); }
+#restart-btn {
+    position: absolute;
+    top: 7%; /* 原本 5% */
+    left: 7%; /* 原本 5% */
+    width: 140px; /* 放大 */
+    height: 60px;
+    background: url('assets/restart_btn.png') no-repeat center center;
+    background-size: contain;
+    border: none;
+    cursor: pointer;
+    text-indent: -9999px;
+}
 #cpu-hp { position: absolute; top: 5%; right: 5%; }
-#player-hp { position: absolute; bottom: 5%; left: 5%; }
-#discard-btn { position: absolute; top: 50%; right: 10%; transform: translateY(-50%); width: 120px; height: 40px; }
+#player-hp {
+    bottom: 8% !important; /* 原本可能是 3%，向上推 */
+    left: 15%;
+}
+#discard-btn {
+    position: absolute;
+    top: 50%;
+    right: 8%;
+    width: 180px; /* 放大 */
+    height: 70px;
+    background: url('assets/discard_btn.png') no-repeat center center;
+    background-size: contain;
+    border: none;
+    cursor: pointer;
+    text-indent: -9999px; /* 隱藏原本文字 */
+}
 #discard-pile { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
 
 /* 9. 手牌重疊與排列 (參考附圖二) */
@@ -230,7 +267,10 @@ body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; backgr
 
 /* 7. 定位修正：向畫面中央靠攏 (調整數值以符合附圖藍色框) */
 #cpu-hp { top: 3%; right: 15%; }
-#player-hp { bottom: 3%; left: 15%; }
+#player-hp {
+    bottom: 8% !important; /* 原本可能是 3%，向上推 */
+    left: 15%;
+}
 
 /* 3. 雙方手牌位置修正 (精確對應紅色框) */
 #cpu-hand-area {
