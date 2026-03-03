@@ -13,7 +13,7 @@ let currentTheme = 'setA';
 const joker = '🃏';
 
 /**
- * 1. 遊戲初始化：拋硬幣決定先後手與牌組
+ * 1. 遊戲初始化
  */
 async function initGame() {
     playerHP = 2; cpuHP = 2;
@@ -22,7 +22,7 @@ async function initGame() {
     document.getElementById('msg-board').innerText = "正在決定先後手...";
     
     const isPlayerFirst = await tossCoin(); 
-    currentTheme = isPlayerFirst ? 'setA' : 'setB'; // 根據先後手更換牌面
+    currentTheme = isPlayerFirst ? 'setA' : 'setB'; 
     
     const baseCards = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
     let fullDeck = [...baseCards, ...baseCards, joker];
@@ -68,24 +68,25 @@ function tossCoin() {
 }
 
 /**
- * 核心渲染：處理 UI 定位與手牌檢視邏輯
+ * 核心渲染：修正牌背顯示與 z-index
  */
 function render() {
-    // 5. 生命值定位與字體放大
     const pHP = document.getElementById('player-hp');
     const cHP = document.getElementById('cpu-hp');
     pHP.innerHTML = `玩家生命 <span style="font-size:2.5rem; color:white;">${"❤️".repeat(playerHP) || "💀"}</span>`;
     cHP.innerHTML = `電腦生命 <span style="font-size:2.5rem; color:white;">${"❤️".repeat(cpuHP) || "💀"}</span>`;
 
-    // 6 & 9. 渲染電腦手牌 (保持牌背，僅檢視動畫)
+    // 電腦手牌：強制寫入 background-image
     const cpuArea = document.getElementById('cpu-hand-area');
     cpuArea.innerHTML = '';
     cpuHand.forEach((card, i) => {
         const div = document.createElement('div');
-        div.className = 'card back';
-        // 1. 確保讀取正確牌背
-        div.style.backgroundImage = `url('assets/${currentTheme}/card_back.png')`;
-        // 9. 左疊右 z-index
+        div.className = 'card back'; 
+        
+        // 明確指定牌背路徑
+        const backUrl = `assets/${currentTheme}/card_back.png`;
+        div.style.backgroundImage = `url('${backUrl}')`; 
+        div.style.backgroundSize = "cover"; // 確保填滿
         div.style.zIndex = cpuHand.length - i;
 
         if (!isAnimating && !isGameOver && !needsToDiscard) {
@@ -94,7 +95,7 @@ function render() {
         cpuArea.appendChild(div);
     });
 
-    // 6 & 9. 渲染我方手牌 (懸停時動態顯示正面)
+    // 我方手牌：檢視時顯示正面
     const playerArea = document.getElementById('player-hand-area');
     playerArea.innerHTML = '';
     playerHand.forEach((card, i) => {
@@ -102,11 +103,11 @@ function render() {
         div.className = 'card';
         const imgPath = `assets/${currentTheme}/${card === joker ? 'joker.png' : card + '.png'}`;
         
-        // 預設顯示正面圖
         div.style.backgroundImage = `url('${imgPath}')`;
+        div.style.backgroundSize = "cover";
         div.style.zIndex = playerHand.length - i;
 
-        // 10. 檢視動畫：滑鼠移入時確保顯示正面圖 (需求修正)
+        // 僅我方手牌滑鼠移入時確保顯示正面圖
         div.onmouseenter = () => {
             if (!isAnimating) div.style.backgroundImage = `url('${imgPath}')`;
         };
@@ -116,7 +117,7 @@ function render() {
 }
 
 /**
- * 展示並棄牌動畫
+ * 展示與棄牌動畫
  */
 async function executeFancyDiscard(cardValue, isCPU = false) {
     const tempPair = [];
