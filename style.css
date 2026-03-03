@@ -198,3 +198,72 @@ body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; backgr
 @keyframes flip-heads { from { transform: rotateY(0); } to { transform: rotateY(1800deg); } }
 @keyframes flip-tails { from { transform: rotateY(0); } to { transform: rotateY(1980deg); } }
 #coin { width: 100px; height: 100px; transition: transform 2s cubic-bezier(0.3, 1, 0.3, 1); transform-style: preserve-3d; }
+
+/* 4. 按鈕樣式：白色底色、深藍文字 */
+.ui-btn {
+    background-color: #ffffff;
+    color: #16213e;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+}
+
+.ui-btn:hover {
+    transform: scale(1.05);
+    background-color: #f0f0f0;
+}
+
+/* 5. 生命值樣式：文字白色、字體放大、向中央靠攏 */
+.hp-display {
+    color: #ffffff;
+    font-size: 2rem; /* 放大字體 */
+    font-weight: bold;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 7. 定位修正：向畫面中央靠攏 (調整數值以符合附圖藍色框) */
+#cpu-hp { top: 3%; right: 15%; }
+#player-hp { bottom: 3%; left: 15%; }
+
+/* 3. 雙方手牌位置修正 (精確對應紅色框) */
+#cpu-hand-area {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%; /* 紅色長方框寬度 */
+}
+
+#player-hand-area {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+}
+
+/* 2. 檢視動畫修正：確保懸停時顯示為正面 */
+.card {
+    width: 80px;
+    height: 120px;
+    margin-right: -50px; /* 達成重疊 */
+    background-size: cover;
+    background-position: center;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+}
+
+/* 當滑鼠移至電腦牌時，強制暫時顯示正面圖片 (Debug 關鍵) */
+#cpu-hand-area .card:hover {
+    transform: translateY(-40px) scale(1.2);
+    margin-right: 20px;
+    z-index: 999 !important;
+    /* 這裡透過 JS 動態注入正面圖，CSS 僅負責動畫 */
+}
