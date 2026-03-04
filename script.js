@@ -51,7 +51,7 @@ async function initGame() {
 }
 
 /**
- * 核心渲染：修正牌背渲染與位置
+ * 核心渲染：修正牌背渲染與位置偏移
  */
 function render() {
     // 生命值：向上移動並放大
@@ -60,15 +60,18 @@ function render() {
     pHP.innerHTML = `玩家生命 <span style="font-size:2.5rem; color:white;">${"❤️".repeat(playerHP) || "💀"}</span>`;
     cHP.innerHTML = `電腦生命 <span style="font-size:2.5rem; color:white;">${"❤️".repeat(cpuHP) || "💀"}</span>`;
 
-    // 電腦手牌渲染修正
+    // 電腦手牌渲染修正：確保路徑加上引號並強制 cover
     const cpuArea = document.getElementById('cpu-hand-area');
     cpuArea.innerHTML = '';
+    const cpuBackUrl = `assets/${currentTheme}/card_back.png`;
+    
     cpuHand.forEach((card, i) => {
         const div = document.createElement('div');
         div.className = 'card back'; 
-        // 強制注入圖片路徑
-        const backUrl = `assets/${currentTheme}/card_back.png`;
-        div.style.backgroundImage = "url('" + backUrl + "')"; 
+        // 修正點：使用 JS 直接注入 inline style 確保最高優先級
+        div.style.backgroundImage = `url('${cpuBackUrl}')`; 
+        div.style.backgroundSize = "cover";
+        div.style.backgroundRepeat = "no-repeat";
         div.style.zIndex = cpuHand.length - i;
         
         if (!isAnimating && !isGameOver && !needsToDiscard) {
@@ -84,10 +87,11 @@ function render() {
         const div = document.createElement('div');
         div.className = 'card';
         const imgPath = `assets/${currentTheme}/${card === joker ? 'joker.png' : card + '.png'}`;
-        div.style.backgroundImage = "url('" + imgPath + "')";
+        div.style.backgroundImage = `url('${imgPath}')`;
+        div.style.backgroundSize = "cover";
         div.style.zIndex = playerHand.length - i;
         
-        // 懸停置頂與檢視動畫
+        // 懸停置頂與檢視動畫邏輯
         div.onmouseenter = () => { if (!isAnimating) div.style.zIndex = 500; };
         div.onmouseleave = () => { if (!isAnimating) div.style.zIndex = playerHand.length - i; };
         
@@ -115,7 +119,7 @@ async function executeFancyDiscard(cardValue, isCPU = false) {
         const cardEl = document.createElement('div');
         cardEl.className = 'card spotlight';
         const imgName = cardValue === joker ? 'joker.png' : `${cardValue}.png`;
-        cardEl.style.backgroundImage = "url('assets/" + currentTheme + "/" + imgName + "')";
+        cardEl.style.backgroundImage = `url('assets/${currentTheme}/${imgName}')`;
         cardEl.style.position = 'fixed';
         cardEl.style.left = '50%';
         cardEl.style.top = targetTop + 'px';
@@ -131,7 +135,7 @@ async function executeFancyDiscard(cardValue, isCPU = false) {
         el.style.filter = "brightness(2) contrast(1.5)"; 
         await sleep(100);
         el.style.filter = "none";
-        el.style.backgroundImage = "url('" + backUrl + "')"; 
+        el.style.backgroundImage = `url('${backUrl}')`; 
         
         el.style.transition = 'all 0.6s cubic-bezier(0.5, 0, 0.5, 1)';
         el.style.left = (pileRect.left + pileRect.width/2) + 'px';
@@ -140,7 +144,7 @@ async function executeFancyDiscard(cardValue, isCPU = false) {
     }
     
     await sleep(650);
-    discardPile.style.backgroundImage = "url('" + backUrl + "')";
+    discardPile.style.backgroundImage = `url('${backUrl}')`;
     discardPile.style.border = 'none';
     tempPair.forEach(el => el.remove());
 }
@@ -207,7 +211,7 @@ async function playerDraw(index, targetEl) {
     const rect = targetEl.getBoundingClientRect();
     const flyCard = document.createElement('div');
     flyCard.className = 'card';
-    flyCard.style.backgroundImage = "url('assets/" + currentTheme + "/" + (card === joker ? 'joker.png' : card + '.png') + "')";
+    flyCard.style.backgroundImage = `url('assets/${currentTheme}/${card === joker ? 'joker.png' : card + '.png'}')`;
     flyCard.style.position = 'fixed';
     flyCard.style.left = rect.left + 'px';
     flyCard.style.top = rect.top + 'px';
@@ -260,7 +264,7 @@ async function playerDiscardAll() {
 }
 
 /**
- * 輔助函式
+ * 系統輔助
  */
 function tossCoin() {
     return new Promise(resolve => {
