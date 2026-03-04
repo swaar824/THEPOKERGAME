@@ -19,18 +19,18 @@ async function initGame() {
     playerHP = 2; cpuHP = 2;
     isGameOver = false; isAnimating = true; needsToDiscard = false;
     
-    // 3. 清空棄牌堆樣式 (重置為虛線框)
+    // 重新開始後清空棄牌堆樣式
     const discardPile = document.getElementById('discard-pile');
-    discardPile.style.backgroundImage = 'none';
-    if(discardPile) discardPile.style.border = '2px dashed rgba(255,255,255,0.3)';
+    if (discardPile) {
+        discardPile.style.backgroundImage = 'none';
+        discardPile.style.border = '2px dashed rgba(255,255,255,0.3)';
+    }
 
     document.getElementById('msg-board').innerText = "正在決定先後手...";
     
-    // 1. 拋硬幣
     const isPlayerFirst = await tossCoin(); 
     currentTheme = isPlayerFirst ? 'setA' : 'setB'; 
     
-    // 準備牌組
     const baseCards = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
     let fullDeck = [...baseCards, ...baseCards, joker];
     fullDeck.sort(() => Math.random() - 0.5);
@@ -46,69 +46,48 @@ async function initGame() {
         await sleep(1000);
         await cpuTurn();
     } else {
-        document.getElementById('msg-board').innerText = "我方先手，請開始抽牌";
+        document.getElementById('msg-board').innerText = "我方先手，請抽牌";
     }
 }
 
 /**
- * 拋硬幣動畫
- */
-function tossCoin() {
-    return new Promise(resolve => {
-        const overlay = document.getElementById('coin-overlay');
-        const coin = document.getElementById('coin');
-        const resultText = document.getElementById('coin-result-text');
-        
-        overlay.classList.remove('hidden');
-        const result = Math.random() > 0.5; 
-        
-        coin.style.animation = result ? 'flip-heads 2s forwards' : 'flip-tails 2s forwards';
-        
-        setTimeout(() => {
-            resultText.innerText = result ? "你先手" : "電腦先手";
-            setTimeout(() => {
-                overlay.classList.add('hidden');
-                resolve(result);
-            }, 1000);
-        }, 2100);
-    });
-}
-
-/**
- * 核心渲染
+ * 核心渲染：修正牌背渲染與位置
  */
 function render() {
-    // 5 & 7. 生命值定位與文字
+    // 生命值：向上移動並放大
     const pHP = document.getElementById('player-hp');
     const cHP = document.getElementById('cpu-hp');
     pHP.innerHTML = `玩家生命 <span style="font-size:2.5rem; color:white;">${"❤️".repeat(playerHP) || "💀"}</span>`;
     cHP.innerHTML = `電腦生命 <span style="font-size:2.5rem; color:white;">${"❤️".repeat(cpuHP) || "💀"}</span>`;
 
-    // 電腦手牌
+    // 電腦手牌渲染修正
     const cpuArea = document.getElementById('cpu-hand-area');
     cpuArea.innerHTML = '';
     cpuHand.forEach((card, i) => {
         const div = document.createElement('div');
         div.className = 'card back'; 
-        div.style.backgroundImage = `url('assets/${currentTheme}/card_back.png')`;
+        // 強制注入圖片路徑
+        const backUrl = `assets/${currentTheme}/card_back.png`;
+        div.style.backgroundImage = "url('" + backUrl + "')"; 
         div.style.zIndex = cpuHand.length - i;
+        
         if (!isAnimating && !isGameOver && !needsToDiscard) {
             div.onclick = (e) => playerDraw(i, e.target);
         }
         cpuArea.appendChild(div);
     });
 
-    // 我方手牌 (包含檢視時置頂邏輯)
+    // 我方手牌渲染
     const playerArea = document.getElementById('player-hand-area');
     playerArea.innerHTML = '';
     playerHand.forEach((card, i) => {
         const div = document.createElement('div');
         div.className = 'card';
         const imgPath = `assets/${currentTheme}/${card === joker ? 'joker.png' : card + '.png'}`;
-        div.style.backgroundImage = `url('${imgPath}')`;
+        div.style.backgroundImage = "url('" + imgPath + "')";
         div.style.zIndex = playerHand.length - i;
         
-        // 10. 檢視動畫修正
+        // 懸停置頂與檢視動畫
         div.onmouseenter = () => { if (!isAnimating) div.style.zIndex = 500; };
         div.onmouseleave = () => { if (!isAnimating) div.style.zIndex = playerHand.length - i; };
         
@@ -117,7 +96,7 @@ function render() {
 }
 
 /**
- * 3. 棄牌動畫邏輯：展示 -> 翻面 -> 覆蓋棄牌堆
+ * 棄牌動畫邏輯：展示 -> 翻面閃爍 -> 蓋至棄牌堆
  */
 async function executeFancyDiscard(cardValue, isCPU = false) {
     const tempPair = [];
@@ -129,15 +108,14 @@ async function executeFancyDiscard(cardValue, isCPU = false) {
     if (isCPU) {
         targetTop = document.getElementById('cpu-hand-area').getBoundingClientRect().top + 100;
     } else {
-        targetTop = document.getElementById('player-hand-area').getBoundingClientRect().top - 100;
+        targetTop = document.getElementById('player-hand-area').getBoundingClientRect().top - 150;
     }
 
-    // 展示對子
     for(let i = 0; i < 2; i++) {
         const cardEl = document.createElement('div');
         cardEl.className = 'card spotlight';
         const imgName = cardValue === joker ? 'joker.png' : `${cardValue}.png`;
-        cardEl.style.backgroundImage = `url('assets/${currentTheme}/${imgName}')`;
+        cardEl.style.backgroundImage = "url('assets/" + currentTheme + "/" + imgName + "')";
         cardEl.style.position = 'fixed';
         cardEl.style.left = '50%';
         cardEl.style.top = targetTop + 'px';
@@ -149,12 +127,11 @@ async function executeFancyDiscard(cardValue, isCPU = false) {
 
     await sleep(800); 
 
-    // 閃爍翻面並位移至棄牌堆
     for (let el of tempPair) {
-        el.style.filter = "brightness(2) contrast(1.5)"; // 閃爍
+        el.style.filter = "brightness(2) contrast(1.5)"; 
         await sleep(100);
         el.style.filter = "none";
-        el.style.backgroundImage = `url('${backUrl}')`; // 翻面為牌背
+        el.style.backgroundImage = "url('" + backUrl + "')"; 
         
         el.style.transition = 'all 0.6s cubic-bezier(0.5, 0, 0.5, 1)';
         el.style.left = (pileRect.left + pileRect.width/2) + 'px';
@@ -163,16 +140,13 @@ async function executeFancyDiscard(cardValue, isCPU = false) {
     }
     
     await sleep(650);
-    
-    // 3. 覆蓋棄牌堆圖樣
-    discardPile.style.backgroundImage = `url('${backUrl}')`;
+    discardPile.style.backgroundImage = "url('" + backUrl + "')";
     discardPile.style.border = 'none';
-    
     tempPair.forEach(el => el.remove());
 }
 
 /**
- * 4. 電腦消牌邏輯：打出手中所有對子
+ * 電腦邏輯：可隨時打出所有對子
  */
 async function cpuDiscardAll() {
     let hasPairs = true;
@@ -194,20 +168,46 @@ async function cpuDiscardAll() {
     }
 }
 
+async function cpuTurn() {
+    if (isGameOver) return;
+    isAnimating = true;
+    document.getElementById('msg-board').innerText = "對手正在檢查手牌...";
+
+    await cpuDiscardAll();
+    if (checkGameStatus()) return;
+
+    await sleep(1000);
+    if (playerHand.length > 0) {
+        const idx = Math.floor(Math.random() * playerHand.length);
+        const card = playerHand.splice(idx, 1)[0];
+        cpuHand.push(card);
+        document.getElementById('msg-board').innerText = "電腦抽走了一張牌";
+        if (card === joker) {
+            cpuHP--;
+            triggerHeartAnim('cpu-hp');
+        }
+        render();
+        await sleep(800);
+        await cpuDiscardAll();
+    }
+
+    isAnimating = false;
+    if (!checkGameStatus()) document.getElementById('msg-board').innerText = "你的回合，請抽一張牌";
+    render();
+}
+
 /**
- * 玩家抽牌邏輯
+ * 玩家邏輯
  */
 async function playerDraw(index, targetEl) {
     if (isAnimating || isGameOver || needsToDiscard) return;
     isAnimating = true;
 
     const card = cpuHand.splice(index, 1)[0];
-    
-    // 抽牌動畫
     const rect = targetEl.getBoundingClientRect();
     const flyCard = document.createElement('div');
     flyCard.className = 'card';
-    flyCard.style.backgroundImage = `url('assets/${currentTheme}/${card === joker ? 'joker.png' : card + '.png'}')`;
+    flyCard.style.backgroundImage = "url('assets/" + currentTheme + "/" + (card === joker ? 'joker.png' : card + '.png') + "')";
     flyCard.style.position = 'fixed';
     flyCard.style.left = rect.left + 'px';
     flyCard.style.top = rect.top + 'px';
@@ -224,13 +224,10 @@ async function playerDraw(index, targetEl) {
     flyCard.remove();
 
     playerHand.push(card);
-    
     if (card === joker) {
         playerHP--;
         triggerHeartAnim('player-hp');
-        document.getElementById('msg-board').innerText = "😱 抽到了鬼牌！生命減少！";
-    } else {
-        document.getElementById('msg-board').innerText = `抽到了 ${card}，請檢查對子`;
+        document.getElementById('msg-board').innerText = "😱 抽到了鬼牌！";
     }
     
     needsToDiscard = true;
@@ -239,12 +236,8 @@ async function playerDraw(index, targetEl) {
     checkGameStatus();
 }
 
-/**
- * 玩家出牌邏輯
- */
 async function playerDiscardAll() {
     if (isAnimating || isGameOver) return;
-    
     let counts = {};
     playerHand.forEach(c => counts[c] = (counts[c] || 0) + 1);
     let pairs = Object.keys(counts).filter(v => v !== joker && counts[v] >= 2);
@@ -267,62 +260,35 @@ async function playerDiscardAll() {
 }
 
 /**
- * 電腦回合邏輯
+ * 輔助函式
  */
-async function cpuTurn() {
-    if (isGameOver) return;
-    isAnimating = true;
-    document.getElementById('msg-board').innerText = "對手正在檢查手牌...";
-
-    // 回合開始先消牌
-    await cpuDiscardAll();
-
-    if (checkGameStatus()) return;
-
-    // 電腦抽牌
-    await sleep(1000);
-    if (playerHand.length > 0) {
-        const idx = Math.floor(Math.random() * playerHand.length);
-        const card = playerHand.splice(idx, 1)[0];
-        cpuHand.push(card);
-        
-        document.getElementById('msg-board').innerText = "電腦抽走了一張牌";
-        if (card === joker) {
-            cpuHP--;
-            triggerHeartAnim('cpu-hp');
-            document.getElementById('msg-board').innerText = "😏 電腦抽中了鬼牌！";
-        }
-        render();
-        
-        // 4. 抽取後再次消牌
-        await sleep(800);
-        await cpuDiscardAll();
-    }
-
-    isAnimating = false;
-    if (!checkGameStatus()) document.getElementById('msg-board').innerText = "你的回合，請抽一張牌";
-    render();
+function tossCoin() {
+    return new Promise(resolve => {
+        const overlay = document.getElementById('coin-overlay');
+        const coin = document.getElementById('coin');
+        const resultText = document.getElementById('coin-result-text');
+        overlay.classList.remove('hidden');
+        const result = Math.random() > 0.5; 
+        coin.style.animation = result ? 'flip-heads 2s forwards' : 'flip-tails 2s forwards';
+        setTimeout(() => {
+            resultText.innerText = result ? "你先手" : "電腦先手";
+            setTimeout(() => { overlay.classList.add('hidden'); resolve(result); }, 1000);
+        }, 2100);
+    });
 }
 
-/**
- * 系統輔助
- */
 function triggerHeartAnim(id) {
     const el = document.getElementById(id);
     el.style.filter = "brightness(3)";
-    el.style.transform = "scale(1.1)";
-    setTimeout(() => {
-        el.style.filter = "none";
-        el.style.transform = "scale(1)";
-    }, 1000);
+    setTimeout(() => { el.style.filter = "none"; }, 1000);
 }
 
 function checkGameStatus() {
     let msg = "";
-    if (playerHP <= 0) msg = "☠️ 體力耗盡，你輸了！";
-    else if (cpuHP <= 0) msg = "✨ 勝利！你擊敗了對手！";
-    else if (playerHand.length === 0) msg = "🏆 你清空了手牌，獲得勝利！";
-    else if (cpuHand.length === 0) msg = "❌ 對手清空了手牌，你輸了！";
+    if (playerHP <= 0) msg = "☠️ 你輸了！";
+    else if (cpuHP <= 0) msg = "✨ 勝利！";
+    else if (playerHand.length === 0) msg = "🏆 你清空了手牌！";
+    else if (cpuHand.length === 0) msg = "❌ 對手清空了手牌！";
 
     if (msg) {
         isGameOver = true;
@@ -335,5 +301,4 @@ function checkGameStatus() {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// 啟動遊戲
 initGame();

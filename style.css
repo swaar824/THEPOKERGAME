@@ -307,3 +307,18 @@ body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; backgr
     z-index: 999 !important;
     /* 這裡透過 JS 動態注入正面圖，CSS 僅負責動畫 */
 }
+
+/* 棄牌堆往上移 */
+#discard-pile {
+    top: 30% !important; 
+}
+
+/* 提示文字往上移，避免與手牌重疊 */
+#msg-board {
+    bottom: 35% !important; 
+}
+
+/* 我方手牌位置參考 */
+#player-hand-area {
+    bottom: 10% !important;
+}
