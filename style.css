@@ -310,7 +310,7 @@ body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; backgr
 
 /* 棄牌堆往上移 */
 #discard-pile {
-    top: 30% !important; 
+    top: 20% !important; 
 }
 
 /* 提示文字往上移，避免與手牌重疊 */
